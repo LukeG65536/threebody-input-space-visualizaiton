@@ -33,8 +33,8 @@ __device__ pixel getColorMax(bodyState *bodys);
 __device__ pixel getColorMin(bodyState *bodys);
 __device__ void updateBodys(bodyState *bodys, double dt);
 __global__ void drawImg(pixel* img, bodyState *systems, vector2 *viewWindow, int wid, int ht, double dt, double time);
-#define widd 1000
-#define timee 10
+#define widd 10000
+#define timee 30
 
 int main()
 {
@@ -45,8 +45,8 @@ int main()
     const int numPixel = width * height;
     vector2 *h_viewWindow = new vector2[2];
     vector2 *d_viewWindow;
-    h_viewWindow[0] = {-2,-2};
-    h_viewWindow[1] = {2,2};
+    h_viewWindow[0] = {-3.3,-3.3};
+    h_viewWindow[1] = {3.3,3.3};
 
 
 
@@ -68,7 +68,7 @@ int main()
         }
     }
 
-    
+    printf("done inilizing stuff\n");
 
     hipMalloc(&d_img, sizeof(pixel) * width * height);
     hipMalloc(&d_systems, sizeof(bodyState) * N * numPixel);
@@ -193,7 +193,7 @@ __device__ void updateBodys(struct bodyState *bodys, double dt)
 __device__ v2* getAccels(struct bodyState *bodys)
 {
 
-    v2 *accels = (v2*)malloc(N * sizeof(vector2));
+    v2 *accels = new v2[N];
 
     for (int i = 0; i < N; i++)
     {
