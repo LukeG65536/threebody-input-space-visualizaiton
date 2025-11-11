@@ -32,7 +32,7 @@ __device__ pixel getColor(bodyState *bodys);
 __device__ void updateBodys(bodyState *bodys, double dt);
 __global__ void drawImg(pixel* img, bodyState *systems, vector2 *viewWindow, int wid, int ht, double dt, double time);
 #define widd 500
-#define timee 10
+#define timee 2
 
 int main()
 {
@@ -158,6 +158,8 @@ __device__ pixel getColor(struct bodyState *bodys)
     return p;
 }
 
+
+
 __device__ void updateBodys(struct bodyState *bodys, double dt)
 {
 //trying velocity verlet https://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
@@ -179,7 +181,7 @@ __device__ void updateBodys(struct bodyState *bodys, double dt)
 __device__ v2* getAccels(struct bodyState *bodys)
 {
 
-    v2 *accels = (v2*)malloc(N * sizeof(vector2));
+    v2 *accels = new vector2[N];
 
     for (int i = 0; i < N; i++)
     {
