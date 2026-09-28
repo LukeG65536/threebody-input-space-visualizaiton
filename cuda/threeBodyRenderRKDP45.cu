@@ -27,7 +27,7 @@ __device__ vector2 v2Sub(vector2 one, vector2 two);
 __device__ vector2 v2Scale(vector2 a, double s);
 __device__ double v2Magnitude(vector2 a);
 __device__ pixel getColor(bodyState *bodys);
-__device__ pixel getColor2(bodyState *bodys);
+__device__ pixel getColor2(double dt);
 
 __device__ void getDState(const bodyState *bodys, bodyState* res, vector2* accels);
 __device__ void scaleDState(bodyState *dState, bodyState *res, double scale);
@@ -38,11 +38,11 @@ __device__ double tryRKDP45Step(bodyState *bodys, double dt, double tol);
 __device__ double updateBodys(bodyState *bodys, double dt, double lastDt);
 __global__ void drawImg(pixel* img, bodyState *systems, bodyState *local, vector2 *viewWindow, double *lastDt, int wid, int ht, double time, bool rst);
 
-#define widd 1000
-#define timee 20
-#define tolerance 1e-9
-#define minStep 0.0001
-#define winSize 2
+#define widd 7000
+#define timee 30
+#define tolerance 1e-10
+#define minStep 0.00005
+#define winSize 3
 #define frameRate 5
 #define modifying vel
 
@@ -61,7 +61,7 @@ __global__ void drawImg(pixel* img, bodyState *systems, bodyState *local, vector
 void writeFrame(pixel* img, int num, int width, int height)
 {
     char filename[15]; //img0000.ppm
-    sprintf(filename, "out/img%4d.ppm", num);
+    sprintf(filename, "test.ppm", num);
 
     FILE *fp = fopen(filename, "wb");
     if (fp == NULL) {
@@ -97,6 +97,8 @@ int main()
     const int numPixel = width * height;
     vector2 *h_viewWindow = new vector2[2];
     vector2 *d_viewWindow;
+    // h_viewWindow[0] = {.2, -1.536};
+    // h_viewWindow[1] = {1.384, -.352};
     h_viewWindow[0] = {-winSize, -winSize};
     h_viewWindow[1] = {winSize, winSize};
 
@@ -107,9 +109,9 @@ int main()
     //trying unified memory
     
     bodyState *initState = new bodyState[N];
-    initState[0] = {{-1,0},{0,0}};
-    initState[1] = {{0,0},{0,0}};
-    initState[2] = {{1,0},{0,0}};
+    initState[0] = {{-1,0},{0,-.2}};
+    initState[1] = {{1,0},{0,0}};
+    initState[2] = {{0,0},{0,.2}};
     
     bodyState *h_systems = (bodyState*)malloc(numPixel * sizeof(bodyState) * N);
     bodyState *d_systems;
@@ -123,6 +125,8 @@ int main()
             h_systems[i*N + j] = initState[j]; //making all the systems start at initstate
         }
     }
+
+    cudaSetDevice(1);
 
 
     //cuda memory stuff
@@ -193,22 +197,17 @@ __global__ void drawImg(pixel* img, bodyState *systems, bodyState *localp, vecto
     lastDt[idx] = updateBodys(local, time, lastDt[idx]);
     
     img[idx] = getColor(local);
+    // img[idx] = getColor2(lastDt[idx]);
     
 }
 
-__device__ pixel getColor2(bodyState *bodys)
+__device__ pixel getColor2(double dt)
 {
-    double d1 = v2Magnitude(v2Sub(bodys[0].pos, bodys[1].pos));
-    double d2 = v2Magnitude(v2Sub(bodys[1].pos, bodys[2].pos));
-    double d3 = v2Magnitude(v2Sub(bodys[0].pos, bodys[2].pos));
-    double max = fmax(fmax(d1, d2), d3);
     pixel p;
-    double w1 = d1/max;
-    double w2 = d2/max;
-    double w3 = d3/max;
-    p.r = sqrt((color1R * color1R * w1 + color2R * color2R * w2 + color3R * color3R * w3)/(w1 + w2 + w3));
-    p.g = sqrt((color1G * color1G * w1 + color2G * color2G * w2 + color3G * color3G * w3)/(w1 + w2 + w3));
-    p.b = sqrt((color1B * color1B * w1 + color2B * color2B * w2 + color3B * color3B * w3)/(w1 + w2 + w3));
+    double c = fmin(dt,10) * 25.5;
+    unsigned char v = (unsigned char)c;
+    p.r = p.g = p.b = v;
+    
     return p;
 }
 
@@ -448,4 +447,3 @@ __device__ vector2 v2Scale(vector2 one, double scale)
     ret.y = one.y * scale;
     return ret;
 }
-
