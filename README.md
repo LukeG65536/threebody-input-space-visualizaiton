@@ -11,7 +11,7 @@ Instead of simulating a single set of initial conditions, this project evaluates
 * Dormand Prince gives a 4th and 5th order estimate, and the difference between the two can be used to estimate the error for each update.
 * The error is then used to calculate a new time step size.
 * Depending on if the error is within tolerance, the estimation is either applied or rejected, and the algorithm resumes with the new time step.
-* Once each simulation has run for some ammount of time, the final state is converted into a pixel color. Black and white images represent the ending step size (how difficult the state is to simulate), and color images represent the relative lengths of a triangle's legs formed with a point at each body.
+* Once each simulation has run for some set ammount of time, the final state is converted into a pixel color. Black and white images represent the ending step size (how difficult the state is to simulate), and color images represent the relative lengths of a triangle's legs formed with a point at each body.
 ## Results
 
 ![Pos Bassed Color](Images/pos_bassed_color_twisting_start.jpg)
