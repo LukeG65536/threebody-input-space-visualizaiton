@@ -31,7 +31,3 @@ Instead of simulating a single set of initial conditions, this project evaluates
 ## Motivation
 
 The three-body problem is deterministic but can exhibit extremely sensitive dependence on initial conditions. This project explores that behavior computationally by treating the initial conditions themselves as the space being visualized, rather than simply plotting individual trajectories.
-
-## Technologies
-
-**C++ / CUDA** · Numerical integration · GPU parallelism · Three-body dynamics
